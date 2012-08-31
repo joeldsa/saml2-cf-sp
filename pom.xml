@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+<project>
+
+	<groupId>org.cloudfoundry.identity</groupId>
+	<version>1.0.0.BUILD-SNAPSHOT</version>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>saml2-cf-sp</artifactId>
+    <packaging>war</packaging>
+    <name>SAML2 Service provider for Cloud Foundry</name>
+
+    <build>
+        <finalName>saml2-cf-sp</finalName>
+    </build>
+
+	<properties>
+		<spring.version>3.1.0.RELEASE</spring.version>
+        <spring.security.version>3.1.0.RELEASE</spring.security.version>
+		<spring.security.oauth.version>1.0.0.M6d</spring.security.oauth.version>
+		<spring.security.saml.version>1.0.0-RC1-SNAPSHOT</spring.security.saml.version>
+		<spring.security.jwt.version>1.0.0.M3</spring.security.jwt.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<tomcat.version>6.0.35</tomcat.version>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>spring-milestone</id>
+			<name>Spring Framework Milestone Repository</name>
+			<url>http://maven.springframework.org.s3.amazonaws.com/milestone</url>
+		</repository>
+		<repository>
+			<!-- necessary for Spring Security OAuth SNAPSHOT dependency -->
+			<id>spring-snapshost</id>
+			<name>Spring Framework Maven Snapshot Repository</name>
+			<url>http://maven.springframework.org/snapshot</url>
+		</repository>
+        <repository>
+          <id>objectstyle</id>
+          <name>ObjectStyle.org Repository</name>
+          <url>http://objectstyle.org/maven2/</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+	</repositories>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.security.extensions</groupId>
+            <artifactId>spring-security-saml2-core</artifactId>
+            <version>${spring.security.saml.version}</version>
+        </dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>${spring.security.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>${spring.security.version}</version>
+        </dependency>
+
+   		<dependency>
+			<groupId>org.springframework.security.oauth</groupId>
+			<artifactId>spring-security-oauth2</artifactId>
+			<version>${spring.security.oauth.version}</version>
+		</dependency>
+        
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>        
+
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-asm</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+                
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-expression</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.6.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
+       <dependency>
+           <groupId>javax.servlet</groupId>
+           <artifactId>jstl</artifactId>
+           <version>1.2</version>
+       </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.4</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.2.1</version>
+		</dependency>
+
+    </dependencies>
+
+</project>
