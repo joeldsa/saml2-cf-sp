@@ -1,6 +1,8 @@
 package org.cloudfoundry.identity.web;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.security.Principal;
 import java.util.Arrays;
@@ -71,7 +73,11 @@ public class CloudfoundryServiceProviderController {
 		}
 
 		HttpHeaders requestHeaders = new HttpHeaders();
-		requestHeaders.putAll(getRequestHeaders(headers));
+		try {
+			requestHeaders.putAll(getRequestHeaders(headers));
+		} catch (URISyntaxException e) {
+			throw new InternalError("Internal Server Error");
+		}
 		requestHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		requestHeaders.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		requestHeaders.remove("Cookie");
@@ -147,11 +153,11 @@ public class CloudfoundryServiceProviderController {
 		}
 	}
 
-	private HttpHeaders getRequestHeaders(HttpHeaders headers) {
+	private HttpHeaders getRequestHeaders(HttpHeaders headers) throws URISyntaxException {
 		HttpHeaders outgoingHeaders = new HttpHeaders();
 		outgoingHeaders.putAll(headers);
 		outgoingHeaders.remove(HOST);
-		outgoingHeaders.set(HOST, uaaHost);
+		outgoingHeaders.set(HOST, (new URI(uaaHost).getHost()));
 		log.debug("Outgoing headers: " + outgoingHeaders);
 		return outgoingHeaders;
 	}
