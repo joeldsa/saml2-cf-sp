@@ -23,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.providers.ExpiringUsernameAuthenticationToken;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
@@ -42,7 +41,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
-@Component
 @SessionAttributes(value = "cookie")
 public class CloudfoundryServiceProviderController {
 
@@ -229,5 +227,13 @@ public class CloudfoundryServiceProviderController {
 
 	public void setAuthorizationTemplate(RestOperations authorizationTemplate) {
 		this.authorizationTemplate = authorizationTemplate;
+	}
+
+	public String getUaaHost() {
+		return uaaHost;
+	}
+
+	public void setUaaHost(String uaaHost) {
+		this.uaaHost = uaaHost;
 	}
 }
