@@ -1,13 +1,19 @@
 package org.cloudfoundry.identity.web;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.security.Principal;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,6 +21,8 @@ import org.opensaml.saml2.core.impl.NameIDImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.providers.ExpiringUsernameAuthenticationToken;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
@@ -41,6 +50,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
+@Component
 @SessionAttributes(value = "cookie")
 public class CloudfoundryServiceProviderController {
 
@@ -53,10 +63,25 @@ public class CloudfoundryServiceProviderController {
     @Autowired
 	private RestOperations authorizationTemplate = null;
 	
-	private String uaaHost = "http://uaa.cf102.dev.las01.vcsops.com";
+    @Value("${uaaHost}")
+	public String uaaHost = "http://uaa.cf102.dev.las01.vcsops.com";
+	
+    @Value("${tokenEndpoint:${uaaHost}}")
+    public String tokenEndpoint = uaaHost;
 	
 	private static final String HOST = "Host";
 	
+	private Properties gitProperties = new Properties();
+	
+	public CloudfoundryServiceProviderController() {
+		try {
+			gitProperties = PropertiesLoaderUtils.loadAllProperties("git.properties");
+		}
+		catch (IOException e) {
+			// Ignore
+		}
+	}
+
 	@RequestMapping(value = "/oauth/authorize", params = "response_type", method = RequestMethod.GET)
 	public ModelAndView startAuthorization(HttpServletRequest request, @RequestParam Map<String, String> parameters,
 			Map<String, Object> model, @RequestHeader HttpHeaders headers, Principal principal) {
@@ -111,16 +136,18 @@ public class CloudfoundryServiceProviderController {
 		return passthru(request, entity, model);
 	}
 
-	@RequestMapping(value = { "/login", "/login_info" }, method = RequestMethod.GET)
-	public String prompts(HttpServletRequest request, @RequestHeader HttpHeaders headers, Model model,
-			Principal principal) throws Exception {
-		String path = extractPath(request);
-		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> response = authorizationTemplate.exchange(uaaHost + "/" + path, HttpMethod.GET,
-				new HttpEntity<Void>(null, getRequestHeaders(headers)), Map.class);
-		@SuppressWarnings("unchecked")
-		Map<String, Object> body = (Map<String, Object>) response.getBody();
-		model.addAllAttributes(body);
+	@RequestMapping(value = { "/login_info", "/login" })
+	public String loginInfo(Model model, Principal principal) {
+		Map<String, String[]> map = new LinkedHashMap<String, String[]>();
+
+		model.addAttribute("commit_id", gitProperties.getProperty("git.commit.id.abbrev", "UNKNOWN"));
+		model.addAttribute(
+				"timestamp",
+				gitProperties.getProperty("git.commit.time",
+						new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date())));
+		
+		model.addAttribute("token_endpoint", tokenEndpoint);
+
 		if (principal == null) {
 			return "login";
 		}
@@ -141,6 +168,17 @@ public class CloudfoundryServiceProviderController {
 //			Principal principal) throws Exception {
 //		return "error";
 //	}
+	
+	public static Map<String, ?> getMapFromProperties(Properties properties, String prefix) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		for (String key : properties.stringPropertyNames()) {
+			if (key.startsWith(prefix)) {
+				String name = key.substring(prefix.length());
+				result.put(name, properties.getProperty(key));
+			}
+		}
+		return result;
+	}
 	
 	private void saveCookie(HttpHeaders headers, Map<String, Object> model) {
 		// Save back end cookie for later
@@ -229,11 +267,11 @@ public class CloudfoundryServiceProviderController {
 		this.authorizationTemplate = authorizationTemplate;
 	}
 
-	public String getUaaHost() {
-		return uaaHost;
-	}
-
 	public void setUaaHost(String uaaHost) {
 		this.uaaHost = uaaHost;
+	}
+
+	public void setTokenEndpoint(String tokenEndpoint) {
+		this.tokenEndpoint = tokenEndpoint;
 	}
 }
