@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -64,7 +63,7 @@ public class CloudfoundryServiceProviderController {
 	private RestOperations authorizationTemplate = null;
 	
     @Value("${uaaHost}")
-	public String uaaHost = "http://uaa.cf102.dev.las01.vcsops.com";
+	public String uaaHost = "http://uaa.cloudfoundry.com";
 	
     @Value("${tokenEndpoint:${uaaHost}}")
     public String tokenEndpoint = uaaHost;
@@ -138,7 +137,6 @@ public class CloudfoundryServiceProviderController {
 
 	@RequestMapping(value = { "/login_info", "/login" })
 	public String loginInfo(Model model, Principal principal) {
-		Map<String, String[]> map = new LinkedHashMap<String, String[]>();
 
 		model.addAttribute("commit_id", gitProperties.getProperty("git.commit.id.abbrev", "UNKNOWN"));
 		model.addAttribute(
@@ -147,6 +145,7 @@ public class CloudfoundryServiceProviderController {
 						new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date())));
 		
 		model.addAttribute("token_endpoint", tokenEndpoint);
+		model.addAttribute("prompts", new String[0]);
 
 		if (principal == null) {
 			return "login";
